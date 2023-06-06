@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+
+.section {
+    background-image: url("./background_login3.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 5px;
+    padding: 60px 220px;
+    background-color: #fff;
+  }
+  
+  .form h5 {
+    font-size: 32px;
+    margin-bottom: 40px;
+    font-weight: bold;
+    color: #075a4cb9;
+    margin-top: 20px;
+  }
+  
+  .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .form-input {
+    padding: 10px 20px;
+    height: 40px;
+    width: 260px;
+    font-size: 18px;
+    border: none;
+    background-color: #e6e6e6;
+    border-radius: 4px;
+  }
+  
+  .btn {
+    height: 50px;
+    width: 280px;
+    font-size: 18px;
+    background-color: #0fb397b9;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 30px;
+  }
+  
+  .btn:hover {
+    background-color: #075a4cb9;
+  }

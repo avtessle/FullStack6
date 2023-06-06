@@ -1,0 +1,50 @@
+.slider {
+    margin: 50px;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.slider h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.slider p {
+    font-size: 30px;
+    color: #075a4cb9;
+}
+
+.photoWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slider img {
+    width: 250px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.arrow-button {
+    position: absolute;
+    top: 55%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 50px;
+}
+
+.arrow-button:disabled {
+color: #dcdada;
+cursor: not-allowed;
+}
+
+.leftArrow {
+left: 30%;
+}
+
+.rightArrow {
+right: 30%;
+}
+  

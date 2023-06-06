@@ -1,0 +1,51 @@
+.todos-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .todos-item {
+    margin-bottom: 10px;
+  }
+  
+  .todo-case {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .todos-checkbox {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .todos-label {
+    font-size: 16px;
+  }
+  .todos-select {
+    background-color: #fff;
+    color: #333;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 20px;
+  }
+
+  select{
+    margin-left: 20px;
+    padding: 10px;
+  }
+
+  .lists{
+    display: flex;
+    justify-content: center;
+  }
+
+  .lists h4{
+    color: #075a4cc5;
+  }
+
+  .todos-list{
+    margin: 10px 40px;
+  }
