@@ -23,7 +23,7 @@ app.post("/signin", function (req, res) {
         database: "project6",
     });
     // ביצוע שאילתת SELECT לבדיקת קיום המשתמש
-    connection.query('SELECT * FROM passwords WHERE username = ?', ['new_user'], (error, results, fields) => {
+    connection.query('SELECT * FROM project6.passwords WHERE username = ?', ['new_user'], (error, results, fields) => {
     if (error) {
       console.error(error);
     } else {
@@ -32,7 +32,7 @@ app.post("/signin", function (req, res) {
         console.log('User already exists.');
       } else {
         // המשתמש אינו קיים בטבלה - ביצוע הוספה
-        connection.query('INSERT INTO passwords (username, password) VALUES (?, ?)', ['new_user', 'new_password'], (error, results, fields) => {
+        connection.query('INSERT INTO project6.passwords (username, password) VALUES (?, ?)', ['new_user', 'new_password'], (error, results, fields) => {
           if (error) {
             console.error(error);
           } else {

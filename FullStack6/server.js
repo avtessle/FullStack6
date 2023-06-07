@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 app.use(cors());
 app.use(express.json());
-
+// LOGIN
 app.post("/login", function (req, res) {
   const { name, password } = req.body;
 
@@ -19,7 +19,7 @@ app.post("/login", function (req, res) {
   const connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "bat7",
+    password: "bat7bat7YO",
     database: "project6",
   });
 
@@ -55,6 +55,51 @@ app.post("/login", function (req, res) {
       });
     });
   });
+});
+//Signin
+app.post("/signin", function (req, res) {
+  const { name, password } = req.body;
+
+  if (!name || !password) {
+    res.status(400).send("Missing username or password");
+    return;
+  }
+
+  console.log(`${name}, ${password}`);
+
+  const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "bat7",
+    database: "project6",
+  });
+  // ביצוע שאילתת SELECT לבדיקת קיום המשתמש
+  connection.query('SELECT * FROM passwords WHERE username = ?', ['new_user'], (error, results, fields) => {
+    if (error) {
+      console.log("ani po");
+      console.error(error);
+    } else {
+      if (results.length > 0) {
+        // המשתמש כבר קיים בטבלה
+        console.log('User already exists.');
+      } else {
+        // המשתמש אינו קיים בטבלה - ביצוע הוספה
+        //להוסיף גם ID
+        connection.query('INSERT INTO passwords (username, password) VALUES (?, ?)', ['new_user', 'new_password'], (error, results, fields) => {
+          if (error) {
+            console.error(error);
+          } else {
+            // הוספה בוצעה בהצלחה
+            console.log('User added successfully!');
+          }
+        });
+      }
+
+      // סגירת החיבור לבסיס הנתונים
+      connection.end();
+    }
+  });
+
 });
 
 app.listen(3000, () => {
