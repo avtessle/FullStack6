@@ -19,7 +19,7 @@ app.post("/login", function (req, res) {
   const connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "avigayiltess",
+    password: "bat7",
     database: "project6",
   });
 

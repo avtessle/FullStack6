@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import styles from "./Login.module.css";
+import { Link} from 'react-router-dom';
 
 function Login() {
   const [name, setName] = useState("");
@@ -72,6 +73,7 @@ function Login() {
         <button type="submit" className={styles.btn}>
           LOGIN
         </button>
+        <Link className="nav-link" to="/signin">signin</Link>
       </form>
     </section>
   );

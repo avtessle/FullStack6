@@ -9,6 +9,7 @@ import Posts from "./pages/Posts";
 import Albums from "./pages/Albums";
 import AlbumPhotos from "./pages/AlbumPhotos";
 import Error from "./pages/Error";
+import Signin from "./Signin";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="login" element={<Login />} />
+          <Route path="signin" element={<Signin />} />
 
           <Route
             path="/"
