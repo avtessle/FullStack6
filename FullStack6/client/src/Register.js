@@ -1,17 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import styles from "./Login.module.css";
 import { Link } from "react-router-dom";
+import styles from "./Login.module.css";
 
-function Login() {
+function Register() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-
-  if (localStorage.length !== 0) {
-    localStorage.clear();
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +15,7 @@ function Login() {
       return;
     }
 
-    const url = "http://localhost:3000/login";
+    const url = "http://localhost:3000/register";
     const requestOptions = {
       method: "POST",
       headers: {
@@ -32,8 +28,8 @@ function Login() {
       .then((response) => {
         if (response.status === 200) {
           return response.json();
-        } else if (response.status === 401) {
-          throw "Wrong username or password";
+        } else if (response.status === 409) {
+          throw "Username or password already exists";
         }
       })
       .then((user) => {
@@ -49,7 +45,7 @@ function Login() {
   return (
     <section className={styles.section}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h5>LOGIN</h5>
+        <h5>REGISTER</h5>
         <div className={styles["form-row"]}>
           <input
             type="text"
@@ -71,14 +67,14 @@ function Login() {
           />
         </div>
         <button type="submit" className={styles.btn}>
-          LOGIN
-        </button>
-        <Link className={styles["btn-link"]} to="/register">
           REGISTER
+        </button>
+        <Link className={styles["btn-link"]} to="/login">
+          LOGIN
         </Link>
       </form>
     </section>
   );
 }
 
-export default Login;
+export default Register;

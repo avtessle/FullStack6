@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Link} from 'react-router-dom';
+import { Link } from "react-router-dom";
 import styles from "./Login.module.css";
 
 function Signin() {
@@ -9,9 +9,9 @@ function Signin() {
 
   const navigate = useNavigate();
 
-//   if (localStorage.length !== 0) {
-//     localStorage.clear();
-//   }
+  //   if (localStorage.length !== 0) {
+  //     localStorage.clear();
+  //   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,13 +32,13 @@ function Signin() {
       .then((response) => {
         if (response.status === 200) {
           return response.json();
-        } else if (response.status === 401) {
-          throw "Wrong username or password";
+        } else if (response.status === 409) {
+          //throw response.json();
         }
       })
       .then((user) => {
-        // localStorage.setItem("currentUser", JSON.stringify(user));
-        navigate("/login");
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        navigate("/info");
       })
       .catch((error) => {
         console.error(error);
@@ -71,9 +71,11 @@ function Signin() {
           />
         </div>
         <button type="submit" className={styles.btn}>
-        SIGNIN
+          SIGNIN
         </button>
-        <Link className="nav-link" to="/login">login</Link>
+        <Link className="nav-link" to="/login">
+          login
+        </Link>
       </form>
     </section>
   );

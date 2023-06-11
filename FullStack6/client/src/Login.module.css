@@ -38,25 +38,45 @@
   .form-input {
     padding: 10px 20px;
     height: 40px;
-    width: 260px;
+    width: 300px;
     font-size: 18px;
     border: none;
     background-color: #e6e6e6;
     border-radius: 4px;
   }
   
-  .btn {
-    height: 50px;
-    width: 280px;
-    font-size: 18px;
-    background-color: #0fb397b9;
+  .btn , .btn-link{
+    align-items: center;
+    justify-content: center;
     color: #fff;
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    margin-top: 30px;
+    margin:5px;
+  }
+
+  .btn{
+    margin-top: 35px;
+    height: 50px;
+    width: 200px;
+    background-color: #0fb397b9;
+    font-size: 18px;
+  }
+
+  .btn-link{
+    display: flex;
+    text-decoration: none;
+    height: 40px;
+    width: 100px;
+    background-color: #e6e6e6;
+    color: #000000;
+    font-size: 14px;
   }
   
   .btn:hover {
     background-color: #075a4cb9;
+  }
+
+  .btn-link:hover{
+    background-color: #a0a0a096;
   }

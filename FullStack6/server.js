@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mysql = require("mysql2");
+const mysql = require("mysql");
 
 app.use(cors());
 app.use(express.json());
-// LOGIN
+
+const sqlPassword = "avigayiltess";
+
 app.post("/login", function (req, res) {
   const { name, password } = req.body;
 
@@ -14,126 +16,99 @@ app.post("/login", function (req, res) {
     return;
   }
 
-  console.log(`${name}, ${password}`);
+  const query = `SELECT * FROM passwords NATURAL JOIN users WHERE username = '${name}' LIMIT 1`;
 
-  const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "bat7bat7YO",
-    database: "project6",
-  });
-
-  connection.connect((err) => {
-    if (err) {
-      console.error("Error connecting to MySQL server: " + err.stack);
-      return;
-    }
-    console.log("Connected to MySQL server");
-
-    const query = `SELECT * FROM passwords NATURAL JOIN users WHERE username = '${name}' LIMIT 1`;
-
-    // Execute the query
-    connection.query(query, (err, results) => {
-      if (err) {
-        console.error("Error executing query: " + err.stack);
-        return;
-      }
-
+  sqlConnect(query)
+    .then((results) => {
       if (results.length === 1 && results[0].password === password) {
         res.status(200).json(results[0]);
       } else {
         res.status(401).send("Wrong username or password");
-        return;
       }
-
-      connection.end((err) => {
-        if (err) {
-          console.error("Error closing connection: " + err.stack);
-          return;
-        }
-        console.log("MySQL connection closed");
-      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
     });
-  });
 });
-//Signin
-app.post("/signin", function (req, res) {
+
+app.post("/register", function (req, res) {
   const { name, password } = req.body;
+  let user;
 
   if (!name || !password) {
     res.status(400).send("Missing username or password");
     return;
   }
 
-  console.log(`${name}, ${password}`);
+  const userQuery = `SELECT * FROM users WHERE username = ?`;
+  const userValues = [name];
 
-  const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "bat7",
-    database: "project6",
-  });
-  // ביצוע שאילתת SELECT לבדיקת קיום המשתמש
-  connection.query('SELECT * FROM passwords WHERE username = ?', ['new_user'], (error, results, fields) => {
-    if (error) {
-      console.log("ani po");
-      console.error(error);
-    } else {
-      if (results.length > 0) {
-        // המשתמש כבר קיים בטבלה
-        console.log('User already exists.');
+  sqlConnect(userQuery, userValues)
+    .then((userResults) => {
+      if (userResults.length === 0) {
+        res.status(400).send("User is not authorized");
+        return;
       } else {
-        // המשתמש אינו קיים בטבלה - ביצוע הוספה
-        //להוסיף גם ID
-        connection.query('INSERT INTO passwords (username, password) VALUES (?, ?)', ['new_user', 'new_password'], (error, results, fields) => {
-          if (error) {
-            console.error(error);
-          } else {
-            // הוספה בוצעה בהצלחה
-            console.log('User added successfully!');
-          }
-        });
+        user = userResults[0];
       }
 
-      // סגירת החיבור לבסיס הנתונים
-      connection.end();
-    }
-  });
-
+      const insertQuery = `INSERT IGNORE INTO passwords (username, password) VALUES (?, ?)`;
+      const insertValues = [name, password];
+      return sqlConnect(insertQuery, insertValues);
+    })
+    .then((results) => {
+      if (results.affectedRows === 1) {
+        res.status(200).json(user);
+      } else {
+        res.status(409).send("Username or password already exists");
+      }
+    })
+    .catch((err) => {
+      console.error("Error executing query: " + err.stack);
+      res.status(500).send("An error occurred");
+    });
 });
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
 
-// const path = require("path");
-// var fs = require("fs");
+function sqlConnect(query, values = []) {
+  return new Promise((resolve, reject) => {
+    const connection = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: sqlPassword,
+      database: "project6",
+    });
 
-// app.use(express.static("public"));
+    connection.connect((err) => {
+      if (err) {
+        console.error("Error connecting to MySQL server: " + err.stack);
+        reject(err);
+        return;
+      }
+      console.log("Connected to MySQL server");
 
-// app.get("/pages", function (req, res) {
-//   res.sendFile(path.join(__dirname, "public", "pages.html"));
-// });
+      connection.query(query, values, (err, results) => {
+        if (err) {
+          console.error("Error executing query: " + err.code);
+          reject(err);
+          // return;
+        }
 
-// app.get("/pages/:page", function (req, res) {
-//   const page = req.params.page;
-//   res.sendFile(path.join(__dirname, "public", "pages", `${page}.html`));
-// });
+        connection.end((err) => {
+          if (err) {
+            console.error("Error closing connection: " + err.stack);
+            // reject(err);
+            return;
+          }
+          console.log("MySQL connection closed");
+        });
 
-// app.get("/contacts/:contactNumber", function (req, res) {
-//   const contactNumber = parseInt(req.params.contactNumber);
-
-//   if (isNaN(contactNumber)) {
-//     res.status(400).json({ error: "Invalid contact number" });
-//     return;
-//   }
-
-//   const contact = contacts[contactNumber - 1];
-
-//   if (!contact) {
-//     res.status(404).json({ error: "Contact not found" });
-//     return;
-//   }
-
-//   res.json(contact);
-// });
+        resolve(results);
+      });
+    });
+  });
+}
