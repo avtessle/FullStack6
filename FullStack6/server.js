@@ -53,8 +53,8 @@ app.post("/register", function (req, res) {
         user = userResults[0];
       }
 
-      const insertQuery = `INSERT IGNORE INTO passwords (username, password) VALUES (?, ?)`;
-      const insertValues = [name, password];
+      const insertQuery = `INSERT IGNORE INTO passwords (id,username, password) VALUES (?,?,?)`;
+      const insertValues = [user.id, name, password];
       return sqlConnect(insertQuery, insertValues);
     })
     .then((results) => {
