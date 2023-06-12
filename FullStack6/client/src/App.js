@@ -29,7 +29,7 @@ function App() {
             }
           >
             <Route
-              path="info/:id"
+              path="/users/:name/info"
               element={
                 <ProtectedRoute>
                   <Info />
