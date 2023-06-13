@@ -49,3 +49,12 @@
   .todos-list{
     margin: 10px 40px;
   }
+  .todo-items span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .todo-items .completed {
+    text-decoration: line-through;
+    color: gray;
+  }
+  

@@ -2,14 +2,15 @@ import { NavLink, Outlet } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
 function Navbar() {
+  const username = JSON.parse(localStorage.getItem("currentUser")).username;
   return (
     <>
       <nav className={styles.navbar}>
         <NavLink
-          to="/info"
+          to={`/users/${username}/info`}
           activeClassName={styles.active}
           className={styles.link}
-        >
+        >
           Info
         </NavLink>
         <br />
@@ -22,7 +23,7 @@ function Navbar() {
         </NavLink>
         <br />
         <NavLink
-          to="/todos"
+          to={`/users/${username}/todos`}
           activeClassName={styles.active}
           className={styles.link}
         >
@@ -30,7 +31,7 @@ function Navbar() {
         </NavLink>
         <br />
         <NavLink
-          to="/posts"
+          to={`/users/${username}/posts`}
           activeClassName={styles.active}
           className={styles.link}
         >
