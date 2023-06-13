@@ -4,73 +4,160 @@ import styles from "./Posts.module.css";
 
 function Posts() {
   const [posts, setPosts] = useState([]);
-  const [IdPost, setIdPOst] = useState("null");
-  const [isBoldId, setIsBoldId] = useState(false);
+  const [commentsPost, setCommentsPost] = useState("null");
   const [comments, setComments] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts")
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  const getData = async (url, setData) => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    fetch(url, requestOptions)
       .then((response) => response.json())
-      .then((data) =>
-        setPosts(
-          data.filter(
-            (post) =>
-              post.userId === JSON.parse(localStorage.getItem("currentUser")).id
-          )
-        )
-      )
+      .then((data) => setData(data))
       .catch((error) => {
-        console.error("Error fetching todos:", error);
+        console.error("Error fetching data:", error);
         navigate("/error");
       });
+  };
+
+  useEffect(() => {
+    const url = `http://localhost:3000/posts?userId=${user.id}&_sort=id`;
+    getData(url, setPosts);
+    // const requestOptions = {
+    //   method: "GET",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // };
+
+    // fetch(url, requestOptions)
+    //   .then((response) => response.json())
+    //   .then((data) => setPosts(data))
+    //   .catch((error) => {
+    //     console.error("Error fetching posts:", error);
+    //     navigate("/error");
+    //   });
   }, []);
 
   const handleComments = async (postId) => {
-    if (IdPost === postId) {
-      setIdPOst(null);
+    if (commentsPost === postId) {
+      setCommentsPost(null);
       setComments([]);
     } else {
-      setIdPOst(postId);
-      try {
-        const response = await fetch(
-          `https://jsonplaceholder.typicode.com/posts/${postId}/comments`
-        );
-        const comments = await response.json();
-        setComments(comments);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
+      setCommentsPost(postId);
+      const url = `http://localhost:3000/comments?postId=${postId}&_sort=id`;
+      getData(url, setComments);
     }
   };
 
+  const addPost = async () => {
+    let title = document.getElementById("title").value;
+    let body = document.getElementById("body").value;
+
+    const url = "http://localhost:3000/posts";
+    const post = {
+      userId: user.id,
+      title: title,
+      body: body,
+    };
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    };
+
+    fetch(url, requestOptions)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.json);
+          const newPost = response.json();
+          setPosts([...posts, newPost]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error adding new post:", error);
+        navigate("/error");
+      });
+  };
+
+  const addComment = async () => {
+    // let title = document.getElementById("title").value;
+    // let body = document.getElementById("body").value;
+    // const url = "http://localhost:3000/posts";
+    // const post = {
+    //   userId: user.id,
+    //   title: title,
+    //   body: body,
+    // };
+    // const requestOptions = {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(post),
+    // };
+    // fetch(url, requestOptions)
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    //       console.log(response.json);
+    //       const newPost = response.json();
+    //       setPosts([...posts, newPost]);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error adding new post:", error);
+    //     navigate("/error");
+    //   });
+  };
+
+  const deletePost = async (postId) => {};
+
   return (
-    <section className="section posts-container">
-      {posts.map((post) => (
-        <div className={styles["post-card"]} key={post.id}>
-          <div className={styles["post-header"]}>
-            <h5>Title: {post.title}</h5>
-            <button onClick={() => setIsBoldId(post.id)}>Bold</button>
+    <section className={styles.posts}>
+      <div className={styles["new-post"]}>
+        <textarea id="title" placeholder="Title"></textarea>
+        <textarea id="body" placeholder="Body"></textarea>
+        <button onClick={addPost}>Add Post</button>
+      </div>
+      <div className={styles["grid-container"]}>
+        {posts.map((post) => (
+          <div className={styles["post-card"]} key={post.id}>
+            <h5>{`${post.id}. ${post.title}`}</h5>
+            <p>{post.body}</p>
+            <div className={styles["post-btns"]}>
+              <button onClick={() => deletePost(post.id)}>Delete Post</button>
+              <button
+                className={styles["comments-btn"]}
+                onClick={() => handleComments(post.id)}
+              >
+                {commentsPost === post.id
+                  ? "Hide Comments"
+                  : "Display Comments"}
+              </button>
+            </div>
+            {commentsPost === post.id && (
+              <div className={styles.comments}>
+                {comments.map((comment) => (
+                  <section>
+                    <h5>{`${comment.id}. ${comment.name}`}</h5>
+                    <p>{comment.body}</p>
+                  </section>
+                ))}
+                <button onClick={addComment}>Add Comment</button>
+              </div>
+            )}
           </div>
-          <p style={{ fontWeight: isBoldId === post.id ? "bold" : "normal" }}>
-            {post.body}
-          </p>
-          <button onClick={() => handleComments(post.id)}>
-            {IdPost === post.id ? "Hide the comments" : "See the comments"}
-          </button>
-          {IdPost === post.id && (
-            <ul>
-              {comments.map((comment) => (
-                <li key={comment.id}>
-                  <h6>{comment.email}</h6>
-                  <h6>{comment.name}</h6>
-                  <p>{comment.body}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 }
