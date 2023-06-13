@@ -10,7 +10,7 @@ function Navbar() {
           to={`/users/${username}/info`}
           activeClassName={styles.active}
           className={styles.link}
-        >
+        >
           Info
         </NavLink>
         <br />
