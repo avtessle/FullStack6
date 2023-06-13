@@ -37,7 +37,7 @@ function App() {
               }
             />
             <Route
-              path="todos"
+              path="/users/:name/todos"
               element={
                 <ProtectedRoute>
                   <Todos />
@@ -45,7 +45,7 @@ function App() {
               }
             />
             <Route
-              path="posts"
+              path="/users/:name/posts"
               element={
                 <ProtectedRoute>
                   <Posts />

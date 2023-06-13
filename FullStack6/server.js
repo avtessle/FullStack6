@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 app.use(cors());
 app.use(express.json());
 
-const sqlPassword = "avigayiltess";
+const sqlPassword = "bat7Yoffe";
 
 app.post("/login", function (req, res) {
   const { name, password } = req.body;
@@ -32,6 +32,98 @@ app.post("/login", function (req, res) {
     });
 });
 
+app.get('/todos/:id', (req, res) => {
+  console.log("GETTTT");
+  const todoId = req.params.id;
+  if (!todoId) {
+    res.status(400).send("Missing todo id");
+    return;
+  }
+  console.log(todoId);
+  const query = `SELECT * FROM todos WHERE userId = '${todoId}' ORDER BY id`;
+
+  sqlConnect(query)
+    .then((results) => {
+      if (results.length > 0) {
+        res.status(200).json(results);
+        return;
+      } else {
+        res.status(401).send("Wrong username or password");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+app.put('/todos/update-title/:id', (req, res) => {
+  const todoId = req.params.id;
+  const { title } = req.body;
+
+  if (!todoId) {
+    res.status(400).send("Missing todo id");
+    return;
+  }
+  console.log(title);
+  const query = `UPDATE todos SET title = '${title}' WHERE id = ${todoId};`;
+  // UPDATE project6.todos SET title = "batsheva" WHERE id = 81;
+
+  sqlConnect(query)
+    .then(results => {
+      console.log("Update successful");
+      console.log();
+      res.status(200);
+    })
+    .catch(error => {
+      console.error("Error updating todos:", error);
+      res.status(500).send("An error occurred");
+    });
+});
+app.put('/todos/update-completed/:id', (req, res) => {
+  const todoId = req.params.id;
+  const { completed } = req.body;
+  console.log(`${completed}`, todoId);
+  //
+  const query = `UPDATE todos SET completed = ${completed} WHERE id = ${todoId};`;
+
+  sqlConnect(query)
+    .then(results => {
+      console.log("Update successful");
+      console.log();
+      res.status(200);
+    })
+    .catch(error => {
+      console.error("Error updating todos:", error);
+      res.status(500).send("An error occurred");
+    });
+
+});
+app.delete('/todos/delete/:id'), (req, res) => {
+  console.log("deleteeeeee");
+  const todoId = req.params.id;
+  const query = `DELETE FROM todos WHERE id = '${todoId}'`;
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Failed to delete todo:', error.message);
+      res.status(500).json({ message: 'Failed to delete todo' });
+    } else {
+      res.status(200).json({ message: 'Todo deleted successfully' });
+    }
+  });
+  // sqlConnect(query)
+  //   .then((results) => {
+  //     console.log(results);
+  //     if (error) {
+  //       console.error('Failed to delete todo:', error.message);
+  //       res.status(500).json({ message: 'Failed to delete todo' });
+  //     } else if (results.affectedRows === 0) {
+  //       res.status(404).json({ message: 'Todo not found' });
+  //     } else {
+  //       res.status(200).json({ message: 'Todo deleted successfully' });
+  //     }
+  //   });
+
+}
 app.post("/register", function (req, res) {
   const { name, password } = req.body;
   let user;
@@ -69,7 +161,54 @@ app.post("/register", function (req, res) {
       res.status(500).send("An error occurred");
     });
 });
+//posts
+app.get("/posts", function (req, res) {
+  const userId = req.query.userId;
 
+  const query = `SELECT * FROM posts WHERE userId = ${userId}`;
+
+  sqlConnect(query)
+    .then((results) => {
+      res.status(200).json(results);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+app.post("/posts", function (req, res) {
+  const post = req.body;
+
+  const query = `INSERT INTO posts (userId, title, body) VALUES (?, ?, ?)`;
+  const values = [post.userId, post.title, post.body];
+
+  sqlConnect(query, values)
+    .then((results) => {
+      post.id = results.insertId;
+      res.status(200).json(post);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+//comments
+app.get("/comments", function (req, res) {
+  const postId = req.query.postId;
+
+  const query = `SELECT * FROM comments WHERE postId = ${postId}`;
+
+  sqlConnect(query)
+    .then((results) => {
+      res.status(200).json(results);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
