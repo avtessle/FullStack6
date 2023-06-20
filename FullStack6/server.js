@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 app.use(cors());
 app.use(express.json());
 
-const sqlPassword = "avigayiltess";
+const sqlPassword = "bat7Yoffe";
 
 //login & register
 app.post("/login", function (req, res) {
@@ -72,8 +72,31 @@ app.post("/register", function (req, res) {
 });
 
 //todos
+app.get("/todos/:id/:completed", (req, res) => {
+  const todoId = req.params.id;
+  const completed=req.params.completed;
+  if (!todoId||!completed) {
+    res.status(400).send("Missing todo id");
+    return;
+  }
+  console.log(completed);
+  const query = `SELECT * FROM todos WHERE userId = '${todoId}' AND completed = '${completed}' ORDER BY id`;
+
+  sqlConnect(query)
+    .then((results) => {
+      if (results.length > 0) {
+        res.status(200).json(results);
+        return;
+      } else {
+        res.status(401).send("Wrong username or password");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
 app.get("/todos/:id", (req, res) => {
-  console.log("GETTTT");
   const todoId = req.params.id;
   if (!todoId) {
     res.status(400).send("Missing todo id");
@@ -162,7 +185,6 @@ app.post("/todos", function (req, res) {
   sqlConnect(query, values)
     .then((results) => {
       todo.id = results.insertId;
-      console.log(todo);
       res.status(200).json(todo);
     })
     .catch((err) => {
@@ -338,7 +360,6 @@ function sqlConnect(query, values = []) {
         if (err) {
           console.error("Error executing query: " + err.code);
           reject(err);
-          // return;
         }
 
         connection.end((err) => {

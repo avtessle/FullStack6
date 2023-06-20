@@ -8,16 +8,26 @@ import Todos from "./pages/Todos";
 import Posts from "./pages/Posts";
 import Error from "./pages/Error";
 import Register from "./Register";
+import { useState, useEffect } from "react";
+
+
 
 function App() {
-  const username = JSON.parse(localStorage.getItem("currentUser")).username;
+  // const username = JSON.parse(localStorage.getItem("currentUser")).username;
+  const [username, setUsername] = useState("");
 
+  useEffect(() => {
+    const user = localStorage.getItem("currentUser");
+    if (user) {
+      setUsername(JSON.parse(user).username);
+    }
+  }, []);
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="login" element={<Login />} />
+          <Route path="login" element={<Login setUsername={setUsername} />} />
           <Route path="register" element={<Register />} />
 
           <Route
