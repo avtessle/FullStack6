@@ -7,7 +7,7 @@ import Comments from "./Comments";
 
 function Posts() {
   const [posts, setPosts] = useState([]);
-  const [commentsPost, setCommentsPost] = useState("null");
+  const [commentsPost, setCommentsPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [isEdit, setIsEdit] = useState(-1);
 
@@ -31,7 +31,9 @@ function Posts() {
   }, [posts]);
 
   useEffect(() => {
-    localStorage.setItem(`comments${commentsPost}`, JSON.stringify(comments));
+    if (commentsPost) {
+      localStorage.setItem(`comments${commentsPost}`, JSON.stringify(comments));
+    }
   }, [comments]);
 
   useEffect(() => {
@@ -39,7 +41,12 @@ function Posts() {
     if (!savedComments) {
       const url = `http://localhost:3000/comments?postId=${commentsPost}&_sort=id`;
       getData(url, setComments);
-      localStorage.setItem(`comments${commentsPost}`, JSON.stringify(comments));
+      if (commentsPost) {
+        localStorage.setItem(
+          `comments${commentsPost}`,
+          JSON.stringify(comments)
+        );
+      }
     } else {
       setComments(JSON.parse(savedComments));
     }
