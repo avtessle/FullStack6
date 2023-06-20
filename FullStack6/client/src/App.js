@@ -26,7 +26,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="login" element={<Login setUsername={setUsername} />} />
-          <Route path="register" element={<Register />} />
+          <Route
+            path="register"
+            element={<Register setUsername={setUsername} />}
+          />
 
           <Route
             path="/"
