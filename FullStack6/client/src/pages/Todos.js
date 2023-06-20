@@ -30,9 +30,7 @@ function Todos() {
   }, []);
 
   useEffect(() => {
-    console.log('useeffectttttt');
     localStorage.setItem("currentTodos", JSON.stringify(Todos));
-
   }, [Todos]);
 
   const fetchTodos = async () => {
@@ -44,15 +42,14 @@ function Todos() {
         },
       })
       if (response.ok) {
-        console.log(response.status); // הדפסת הסטטוס
         const newData = await response.json(); // מחזיר פרומיס עם תוכן התשובה בפורמט JSON
-        localStorage.setItem("currentTodos", JSON.stringify(newData));
         setTodos(newData);
       }
     } catch (error) {
       console.error('Failed to fetch todos:', error.message);
     }
   };
+
   const handleDelete = async (id) => {
     try {
       console.log("delete");
@@ -76,7 +73,6 @@ function Todos() {
   };
 
   const handleSave = async (id, title, c) => {
-    console.log(id, title, c);
     if (editingTodoId != null) {
       try {
         const todo = {
@@ -96,8 +92,6 @@ function Todos() {
         console.log(response);
         if (response.ok) {
           const updatedTodo = await response.json();
-          console.log(updatedTodo);
-
           await setTodos(prevTodos => {
             return prevTodos.map(todo => {
               if (todo.id === updatedTodo.id) {
@@ -118,7 +112,6 @@ function Todos() {
   };
 
   const handleCheckChange = async (id, title, completed) => {
-    console.log(id, completed);
     try {
       const todo = {
         userId: usern.id,
@@ -155,8 +148,8 @@ function Todos() {
   }
 
   const handleEdit = async (id, title) => {
-    await setEditingTodoId(id);
-    await setEditTitle(title);
+     setEditingTodoId(id);
+     setEditTitle(title);
   };
 
   const addTodo = async () => {
