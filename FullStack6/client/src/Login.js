@@ -9,7 +9,7 @@ function Login() {
 
   const navigate = useNavigate();
 
-  if (localStorage.length !== 0) {
+  if (localStorage.getItem("currentUser")) {
     localStorage.clear();
   }
 

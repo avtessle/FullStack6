@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mysql = require("mysql2");
+const mysql = require("mysql");
 
 app.use(cors());
 app.use(express.json());
 
-const sqlPassword = "bat7Yoffe";
+const sqlPassword = "avigayiltess";
 
 //login & register
 app.post("/login", function (req, res) {
@@ -99,21 +99,16 @@ app.get("/todos/:id", (req, res) => {
 
 app.put("/todos/update-title/:id", (req, res) => {
   const todoId = req.params.id;
-  const { title } = req.body;
-
-  if (!todoId) {
+  const userUpdate = req.body;
+  if (!todoId || !userUpdate) {
     res.status(400).send("Missing todo id");
     return;
   }
-  console.log(title);
-  const query = `UPDATE todos SET title = '${title}' WHERE id = ${todoId};`;
-  // UPDATE project6.todos SET title = "batsheva" WHERE id = 81;
-
+  const query = `UPDATE todos SET title = '${userUpdate.title}' WHERE id = ${todoId};`;
   sqlConnect(query)
     .then((results) => {
       console.log("Update successful");
-      console.log();
-      res.status(200);
+      res.status(200).json(userUpdate);
     })
     .catch((error) => {
       console.error("Error updating todos:", error);
@@ -123,16 +118,16 @@ app.put("/todos/update-title/:id", (req, res) => {
 
 app.put("/todos/update-completed/:id", (req, res) => {
   const todoId = req.params.id;
-  const { completed } = req.body;
-  console.log(`${completed}`, todoId);
-  //
-  const query = `UPDATE todos SET completed = ${completed} WHERE id = ${todoId};`;
-
+  const userUpdate = req.body;
+  if (!todoId) {
+    res.status(400).send("Missing todo id/completed");
+    return;
+  }
+  const query = `UPDATE todos SET completed = ${userUpdate.completed} WHERE id = ${todoId};`;
   sqlConnect(query)
     .then((results) => {
       console.log("Update successful");
-      console.log();
-      res.status(200);
+      res.status(200).json(userUpdate);
     })
     .catch((error) => {
       console.error("Error updating todos:", error);
@@ -140,32 +135,41 @@ app.put("/todos/update-completed/:id", (req, res) => {
     });
 });
 
-app.delete("/todos/delete/:id"),
-  (req, res) => {
-    console.log("deleteeeeee");
-    const todoId = req.params.id;
-    const query = `DELETE FROM todos WHERE id = '${todoId}'`;
-    connection.query(query, (error, results) => {
-      if (error) {
-        console.error("Failed to delete todo:", error.message);
-        res.status(500).json({ message: "Failed to delete todo" });
-      } else {
-        res.status(200).json({ message: "Todo deleted successfully" });
-      }
+app.delete("/todos/delete/:id", (req, res) => {
+  const todoId = req.params.id;
+  console.log(todoId);
+  const query = `DELETE FROM todos WHERE id = '${todoId}'`;
+  sqlConnect(query)
+    .then((results) => {
+      console.log("delete successful");
+      console.log(results);
+      res.status(200);
+    })
+    .catch((error) => {
+      console.error("Error delete todos:", error);
+      res.status(500).send("An error occurred");
     });
-    // sqlConnect(query)
-    //   .then((results) => {
-    //     console.log(results);
-    //     if (error) {
-    //       console.error('Failed to delete todo:', error.message);
-    //       res.status(500).json({ message: 'Failed to delete todo' });
-    //     } else if (results.affectedRows === 0) {
-    //       res.status(404).json({ message: 'Todo not found' });
-    //     } else {
-    //       res.status(200).json({ message: 'Todo deleted successfully' });
-    //     }
-    //   });
-  };
+});
+
+app.post("/todos", function (req, res) {
+  const todo = req.body;
+  if (!todo) {
+    res.status(400).send("Missing todo body");
+    return;
+  }
+  const query = `INSERT INTO todos (userId, title, completed) VALUES (?, ?, ?)`;
+  const values = [todo.userId, todo.title, todo.completed];
+  sqlConnect(query, values)
+    .then((results) => {
+      todo.id = results.insertId;
+      console.log(todo);
+      res.status(200).json(todo);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
 
 //posts
 app.get("/posts", function (req, res) {
@@ -200,6 +204,45 @@ app.post("/posts", function (req, res) {
     });
 });
 
+app.put("/posts/:id", function (req, res) {
+  const postId = req.params.id;
+  const updatedPost = req.body;
+
+  const query = `UPDATE posts SET userId = ?, title = ?, body = ? WHERE id = ?`;
+  const values = [
+    updatedPost.userId,
+    updatedPost.title,
+    updatedPost.body,
+    postId,
+  ];
+
+  sqlConnect(query, values)
+    .then(() => {
+      res.status(200).json(updatedPost);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+app.delete("/posts/:id", function (req, res) {
+  const postId = req.params.id;
+
+  let query = `DELETE FROM comments WHERE postId = ${postId}`;
+  sqlConnect(query)
+    .then(() => {
+      query = `DELETE FROM posts WHERE id = ${postId}`;
+      sqlConnect(query).then(() => {
+        res.status(200).json({ message: "Post deleted successfully" });
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
 //comments
 app.get("/comments", function (req, res) {
   const postId = req.query.postId;
@@ -209,6 +252,60 @@ app.get("/comments", function (req, res) {
   sqlConnect(query)
     .then((results) => {
       res.status(200).json(results);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+app.post("/comments", function (req, res) {
+  const comment = req.body;
+
+  const query = `INSERT INTO comments (postId, name, email, body) VALUES (?, ?, ?, ?)`;
+  const values = [comment.postId, comment.name, comment.email, comment.body];
+
+  sqlConnect(query, values)
+    .then((results) => {
+      comment.id = results.insertId;
+      res.status(200).json(comment);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+app.put("/comments/:id", function (req, res) {
+  const commentId = req.params.id;
+  const updatedComment = req.body;
+
+  const query = `UPDATE comments SET name = ?, email = ?, body = ? WHERE postId=? AND id = ?`;
+  const values = [
+    updatedComment.name,
+    updatedComment.email,
+    updatedComment.body,
+    updatedComment.postId,
+    commentId,
+  ];
+
+  sqlConnect(query, values)
+    .then(() => {
+      res.status(200).json(updatedComment);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+app.delete("/comments/:id", function (req, res) {
+  const commentId = req.params.id;
+
+  let query = `DELETE FROM comments WHERE id = ${commentId}`;
+  sqlConnect(query)
+    .then(() => {
+      res.status(200).json({ message: "Comment deleted successfully" });
     })
     .catch((err) => {
       console.error(err);

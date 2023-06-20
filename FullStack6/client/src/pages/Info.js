@@ -15,13 +15,6 @@ function Info() {
             <td>Email</td>
             <td>{user.email}</td>
           </tr>
-          {/* <tr>
-            <td>Address</td>
-            <td>
-              {user.address.street}, {user.address.suite}, {user.address.city},{" "}
-              {user.address.zipcode}
-            </td>
-          </tr> */}
           <tr>
             <td>Phone</td>
             <td>{user.phone}</td>
@@ -30,18 +23,14 @@ function Info() {
             <td>Website</td>
             <td>{user.website}</td>
           </tr>
-          {/* <tr>
-            <td>Company</td>
-            <td>{user.company.name}</td>
+          <tr>
+            <td>Rank</td>
+            <td>{user.rank}</td>
           </tr>
           <tr>
-            <td>Catch Phrase</td>
-            <td>{user.company.catchPhrase}</td>
+            <td>api key</td>
+            <td>{user.api_key}</td>
           </tr>
-          <tr>
-            <td>BS</td>
-            <td>{user.company.bs}</td>
-          </tr> */}
         </tbody>
       </table>
     </div>

@@ -6,12 +6,12 @@ import Navbar from "./Navbar";
 import Info from "./pages/Info";
 import Todos from "./pages/Todos";
 import Posts from "./pages/Posts";
-import Albums from "./pages/Albums";
-import AlbumPhotos from "./pages/AlbumPhotos";
 import Error from "./pages/Error";
 import Register from "./Register";
 
 function App() {
+  const username = JSON.parse(localStorage.getItem("currentUser")).username;
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -29,7 +29,7 @@ function App() {
             }
           >
             <Route
-              path="/users/:name/info"
+              path={`/users/${username}/info`}
               element={
                 <ProtectedRoute>
                   <Info />
@@ -37,7 +37,7 @@ function App() {
               }
             />
             <Route
-              path="/users/:name/todos"
+              path={`/users/${username}/todos`}
               element={
                 <ProtectedRoute>
                   <Todos />
@@ -45,26 +45,10 @@ function App() {
               }
             />
             <Route
-              path="/users/:name/posts"
+              path={`/users/${username}/posts`}
               element={
                 <ProtectedRoute>
                   <Posts />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="albums"
-              element={
-                <ProtectedRoute>
-                  <Albums />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/albums/:albumId"
-              element={
-                <ProtectedRoute>
-                  <AlbumPhotos />
                 </ProtectedRoute>
               }
             />

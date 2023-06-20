@@ -1,9 +1,19 @@
-
 .new-post button{
   margin: 10px;
   padding: 5px;
   width: 90px;
   height: 40px;
+  border: none;
+  margin-left: 50px;
+  background-color: #0e7b69b3;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.new-post button:hover {
+  background-color: #075a4cd4;
+  scale: 1.1;
 }
 
 .posts {
@@ -29,41 +39,17 @@
   margin: 10px;
 }
 
+.singleColumn {
+  grid-row: 1;
+  grid-column: span 3;
+}
+
 .post-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 5px;
 }
-
-/* .post-header h5 {
-  margin: 0;
-}
-
-.posts-container p {
-  margin: 0;
-  margin-top: 5px;
-} */
-
-/* .posts-container ul {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 10px;
-}
-
-.posts-container li {
-  margin-bottom: 10px;
-}
-
-.posts-container li h6 {
-  font-size: 16px;
-  margin: 0;
-}
-
-.posts-container li p {
-  margin: 0;
-  margin-top: 5px;
-} */
 
 .new-post{
   display: flex;
@@ -84,28 +70,45 @@
 .post-btns button{
   color: #fff;
   border: none;
-  width: 160px;
+  width: 90px;
   height: 35px;
   cursor: pointer;
   background-color: #0e7b69b3;
-  margin: 5px 20px;
+  margin: 5px;
   font-size: 14px;
 }
 
-.post-card button:hover {
+.post-btns :last-child{
+  width: 150px;
+  margin-left: 80px;
+}
+
+.post-btns button:hover {
   background-color: #075a4cd4;
 }
 
-.comments{
-  text-align: left;
-  margin: 10px;
+.edit-post{
+  display: flex;
+  align-items: center;
 }
 
-.comments p{
-  font-size: 14px;
-  margin-top:5px;
+.edit-post button{
+  height: 30px;
+  margin-left: 20px;
 }
 
-.comments h5{
-  margin-bottom: 0;
+.edit-input{
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-input *{
+  margin: 5px;
+  padding: 10px 30px;
+  width: 300px;
+}
+
+.posts textarea, input{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 2px solid #ccc;
 }

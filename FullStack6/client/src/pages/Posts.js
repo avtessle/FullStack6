@@ -1,14 +1,49 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useRef } from "react";
+
 import styles from "./Posts.module.css";
+import Comments from "./Comments";
 
 function Posts() {
   const [posts, setPosts] = useState([]);
   const [commentsPost, setCommentsPost] = useState("null");
   const [comments, setComments] = useState([]);
-  const navigate = useNavigate();
+  const [isEdit, setIsEdit] = useState(-1);
 
+  const navigate = useNavigate();
+  const scrollRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  useEffect(() => {
+    let savedPosts = localStorage.getItem("posts");
+    if (!savedPosts) {
+      const url = `http://localhost:3000/posts?userId=${user.id}&_sort=id`;
+      getData(url, setPosts);
+      localStorage.setItem("posts", JSON.stringify(posts));
+    } else {
+      setPosts(JSON.parse(savedPosts));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("posts", JSON.stringify(posts));
+  }, [posts]);
+
+  useEffect(() => {
+    localStorage.setItem(`comments${commentsPost}`, JSON.stringify(comments));
+  }, [comments]);
+
+  useEffect(() => {
+    let savedComments = localStorage.getItem(`comments${commentsPost}`);
+    if (!savedComments) {
+      const url = `http://localhost:3000/comments?postId=${commentsPost}&_sort=id`;
+      getData(url, setComments);
+      localStorage.setItem(`comments${commentsPost}`, JSON.stringify(comments));
+    } else {
+      setComments(JSON.parse(savedComments));
+    }
+  }, [commentsPost]);
 
   const getData = async (url, setData) => {
     const requestOptions = {
@@ -27,24 +62,75 @@ function Posts() {
       });
   };
 
-  useEffect(() => {
-    const url = `http://localhost:3000/posts?userId=${user.id}&_sort=id`;
-    getData(url, setPosts);
-    // const requestOptions = {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // };
+  const addData = async (url, data, setData) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
 
-    // fetch(url, requestOptions)
-    //   .then((response) => response.json())
-    //   .then((data) => setPosts(data))
-    //   .catch((error) => {
-    //     console.error("Error fetching posts:", error);
-    //     navigate("/error");
-    //   });
-  }, []);
+    try {
+      const response = await fetch(url, requestOptions);
+      if (response.status === 200) {
+        const newData = await response.json();
+        setData((prevData) => [...prevData, newData]);
+      }
+    } catch (error) {
+      console.error("Error adding new data:", error);
+      navigate("/error");
+    }
+  };
+
+  const editData = async (url, data, setData) => {
+    const requestOptions = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    try {
+      const response = await fetch(url, requestOptions);
+      if (response.status === 200) {
+        const updatedRecord = await response.json();
+        setData((prevData) => {
+          return prevData.map((record) => {
+            if (record.id === updatedRecord.id) {
+              return updatedRecord;
+            }
+            return record;
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error updating data:", error);
+      navigate("/error");
+    }
+  };
+
+  const deleteData = async (url, recordId, setData) => {
+    const requestOptions = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const response = await fetch(url, requestOptions);
+      if (response.ok) {
+        setData((prevData) => {
+          return prevData.filter((record) => record.id !== recordId);
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      navigate("/error");
+    }
+  };
 
   const handleComments = async (postId) => {
     if (commentsPost === postId) {
@@ -52,9 +138,9 @@ function Posts() {
       setComments([]);
     } else {
       setCommentsPost(postId);
-      const url = `http://localhost:3000/comments?postId=${postId}&_sort=id`;
-      getData(url, setComments);
     }
+
+    scrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const addPost = async () => {
@@ -67,62 +153,31 @@ function Posts() {
       title: title,
       body: body,
     };
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(post),
+    addData(url, post, setPosts);
+  };
+
+  const editPost = async (postId) => {
+    let title = document.getElementById("updatedTitle").value;
+    let body = document.getElementById("updatedBody").value;
+
+    const url = `http://localhost:3000/posts/${postId}`;
+    const post = {
+      id: postId,
+      userId: user.id,
+      title: title,
+      body: body,
     };
-
-    fetch(url, requestOptions)
-      .then((response) => {
-        if (response.status === 200) {
-          console.log(response.json);
-          const newPost = response.json();
-          setPosts([...posts, newPost]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error adding new post:", error);
-        navigate("/error");
-      });
+    editData(url, post, setPosts);
+    setIsEdit(-1);
   };
 
-  const addComment = async () => {
-    // let title = document.getElementById("title").value;
-    // let body = document.getElementById("body").value;
-    // const url = "http://localhost:3000/posts";
-    // const post = {
-    //   userId: user.id,
-    //   title: title,
-    //   body: body,
-    // };
-    // const requestOptions = {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(post),
-    // };
-    // fetch(url, requestOptions)
-    //   .then((response) => {
-    //     if (response.status === 200) {
-    //       console.log(response.json);
-    //       const newPost = response.json();
-    //       setPosts([...posts, newPost]);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error adding new post:", error);
-    //     navigate("/error");
-    //   });
+  const deletePost = async (postId) => {
+    const url = `http://localhost:3000/posts/${postId}`;
+    deleteData(url, postId, setPosts);
   };
-
-  const deletePost = async (postId) => {};
 
   return (
-    <section className={styles.posts}>
+    <section className={styles.posts} ref={scrollRef}>
       <div className={styles["new-post"]}>
         <textarea id="title" placeholder="Title"></textarea>
         <textarea id="body" placeholder="Body"></textarea>
@@ -130,11 +185,32 @@ function Posts() {
       </div>
       <div className={styles["grid-container"]}>
         {posts.map((post) => (
-          <div className={styles["post-card"]} key={post.id}>
-            <h5>{`${post.id}. ${post.title}`}</h5>
-            <p>{post.body}</p>
+          <div
+            className={`${styles["post-card"]} ${
+              commentsPost === post.id ? styles.singleColumn : ""
+            }`}
+            key={post.id}
+          >
+            <div>
+              {isEdit === post.id ? (
+                <div className={styles["edit-post"]}>
+                  <section className={styles["edit-input"]}>
+                    <input id="updatedTitle" defaultValue={post.title} />
+                    <textarea id="updatedBody" defaultValue={post.body} />
+                  </section>
+                  <button onClick={() => editPost(post.id)}>Save</button>
+                </div>
+              ) : (
+                <div>
+                  <h5>{`${post.id}. ${post.title}`}</h5>
+                  <p>{post.body}</p>
+                </div>
+              )}
+            </div>
+
             <div className={styles["post-btns"]}>
-              <button onClick={() => deletePost(post.id)}>Delete Post</button>
+              <button onClick={() => setIsEdit(post.id)}>Edit</button>
+              <button onClick={() => deletePost(post.id)}>Delete</button>
               <button
                 className={styles["comments-btn"]}
                 onClick={() => handleComments(post.id)}
@@ -145,15 +221,12 @@ function Posts() {
               </button>
             </div>
             {commentsPost === post.id && (
-              <div className={styles.comments}>
-                {comments.map((comment) => (
-                  <section>
-                    <h5>{`${comment.id}. ${comment.name}`}</h5>
-                    <p>{comment.body}</p>
-                  </section>
-                ))}
-                <button onClick={addComment}>Add Comment</button>
-              </div>
+              <Comments
+                comments={comments}
+                postId={post.id}
+                setComments={setComments}
+                dataHandlers={{ addData, editData, deleteData }}
+              />
             )}
           </div>
         ))}
