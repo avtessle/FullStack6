@@ -3,7 +3,7 @@ import { useState } from "react";
 import styles from "./Login.module.css";
 import { Link } from "react-router-dom";
 
-function Login() {
+function Login({ setUsername }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
@@ -38,6 +38,7 @@ function Login() {
       })
       .then((user) => {
         localStorage.setItem("currentUser", JSON.stringify(user));
+        setUsername(name);
         navigate(`/users/${name}/info`);
       })
       .catch((error) => {

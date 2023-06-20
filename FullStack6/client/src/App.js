@@ -1,5 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
 import Navbar from "./Navbar";
@@ -10,14 +11,21 @@ import Error from "./pages/Error";
 import Register from "./Register";
 
 function App() {
-  const username = JSON.parse(localStorage.getItem("currentUser")).username;
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const user = localStorage.getItem("currentUser");
+    if (user) {
+      setUsername(JSON.parse(user).username);
+    }
+  }, []);
 
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="login" element={<Login />} />
+          <Route path="login" element={<Login setUsername={setUsername} />} />
           <Route path="register" element={<Register />} />
 
           <Route

@@ -338,7 +338,6 @@ function sqlConnect(query, values = []) {
         if (err) {
           console.error("Error executing query: " + err.code);
           reject(err);
-          // return;
         }
 
         connection.end((err) => {

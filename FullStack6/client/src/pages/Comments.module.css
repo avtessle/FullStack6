@@ -8,11 +8,12 @@
     height: 30px;
     margin-top: 5px;
     border: none;
-    background-color: #0e7b6912;
+    background-color: rgba(0, 65, 205, 0.112);
+    color: black;
 }
 
 .comments button:hover{
-    background-color: #0e7b6958;
+    background-color: rgba(0, 65, 205, 0.353);
     cursor: pointer;
     scale: 1.05;
 }
@@ -68,4 +69,8 @@
 
 .new-comment button{
     margin: 30px;
+}
+
+.single-comment button{
+    margin-left: 5px;
 }

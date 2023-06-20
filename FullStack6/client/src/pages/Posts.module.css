@@ -5,14 +5,14 @@
   height: 40px;
   border: none;
   margin-left: 50px;
-  background-color: #0e7b69b3;
+  background-color: mediumblue;
   color: white;
   cursor: pointer;
   font-size: 16px;
 }
 
 .new-post button:hover {
-  background-color: #075a4cd4;
+  background-color: rgba(0, 0, 205, 0.575);
   scale: 1.1;
 }
 
@@ -73,7 +73,8 @@
   width: 90px;
   height: 35px;
   cursor: pointer;
-  background-color: #0e7b69b3;
+  background-color: rgba(0, 65, 205, 0.112);
+  color: rgb(7, 7, 155);
   margin: 5px;
   font-size: 14px;
 }
@@ -84,7 +85,7 @@
 }
 
 .post-btns button:hover {
-  background-color: #075a4cd4;
+  background-color: rgba(0, 65, 205, 0.353);
 }
 
 .edit-post{
