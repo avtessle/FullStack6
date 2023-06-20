@@ -146,6 +146,10 @@ function Posts() {
   const addPost = async () => {
     let title = document.getElementById("title").value;
     let body = document.getElementById("body").value;
+    if (!title || !body) {
+      alert("Title or body are empty");
+      return;
+    }
 
     const url = "http://localhost:3000/posts";
     const post = {
@@ -153,12 +157,17 @@ function Posts() {
       title: title,
       body: body,
     };
-    addData(url, post, setPosts);
+    await addData(url, post, setPosts);
+    alert("Added successfully!");
   };
 
   const editPost = async (postId) => {
     let title = document.getElementById("updatedTitle").value;
     let body = document.getElementById("updatedBody").value;
+    if (!title || !body) {
+      alert("Title or body are empty");
+      return;
+    }
 
     const url = `http://localhost:3000/posts/${postId}`;
     const post = {

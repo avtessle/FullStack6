@@ -10,30 +10,27 @@ function Todos() {
   const [editTitle, setEditTitle] = useState(null);//השינוי שעושים לכותרת
   const [newTodo, setnewTodo] = useState([]);//תוכן של טודו חדש
 
-  const[flag,setFlag]=useState(true);
   const navigate = useNavigate();
 
   const usern = JSON.parse(localStorage.getItem('currentUser'));
-  const todos = JSON.parse(localStorage.getItem("currentTodos"));
-  const todosComp = JSON.parse(localStorage.getItem("compTodos"));
+  const todos = JSON.parse(localStorage.getItem("currentTodos"));//כל הרשימה המעודכנת עד עכשיו
+  const todosComp = JSON.parse(localStorage.getItem("compTodos"));//במידה והוסיפו גם את המשימות שבוצעו כדי לגעת שבוצעו
 
   useEffect(() => {
-    console.log('first');
-    if(!todos){
-      getComp(0);
-      // console.log(n);
-      // setTodos(n)
-  }
-    else{
+    if (!todos) {
+      const temp = getComp(0);
+      temp.then(data => setTodos(data));
+    }
+    else {
       setTodos(todos)
     }
   }, []);
 
   useEffect(() => {
-    console.log("useEffect");
     localStorage.setItem("currentTodos", JSON.stringify(Todos));
   }, [Todos]);
 
+  //פונקציה ששולפת את כל המשימות שהמצב שלהן COMP 
   const getComp = async (comp) => {
     try {
       const response = await fetch(`http://localhost:3000/todos/${usern.id}/${comp}`, {
@@ -43,71 +40,30 @@ function Todos() {
         },
       });
       if (response.ok) {
-        const newData = await response.json(); // מחזיר פרומיס עם תוכן התשובה בפורמט JSON
-        await setTodos (newData);
+        const newData = await response.json();
+        return newData;
       }
     } catch (error) {
       console.error('Failed to fetch todos:', error.message);
     }
   }
-  const merge = async (comp) => {
-    try {
-      const response = await fetch(`http://localhost:3000/todos/${usern.id}/${comp}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-      if (response.ok) {
-        const newData = await response.json(); 
-        localStorage.setItem("compTodos", JSON.stringify(newData));
-
-        const mergedTodos = Todos.concat(newData);
-        mergedTodos.sort((a, b) => a.id - b.id);
-        await setTodos (mergedTodos);
-      }
-    } catch (error) {
-      console.error('Failed to fetch todos:', error.message);
-    }
-  }
-  const fetchTodos = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/todos/${usern.id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      })
-      if (response.ok) {
-        const newData = await response.json(); // מחזיר פרומיס עם תוכן התשובה בפורמט JSON
-        setTodos(newData);
-      }
-    } catch (error) {
-      console.error('Failed to fetch todos:', error.message);
-    }
-  };
 
   const handleDelete = async (id) => {
     try {
-      console.log("delete");
       const response = await fetch(`http://localhost:3000/todos/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
         },
       });
-      console.log("if");
-      console.log(response);
       if (response.ok) {
-        console.log('Todo deleted successfully');
-        setTodos((prevTodos) => {
+        await setTodos((prevTodos) => {
           return prevTodos.filter(todo => todo.id !== id);
         });
-      } else {
-        throw new Error('Failed to delete todo');
       }
     } catch (error) {
-      console.error('Failed to delete todo:', error.message);
+      console.error("Error deleting data:", error);
+      navigate("/error");
     }
   };
 
@@ -128,7 +84,6 @@ function Todos() {
           },
           body: JSON.stringify(todo)
         });
-        console.log(response);
         if (response.ok) {
           const updatedTodo = await response.json();
           await setTodos(prevTodos => {
@@ -151,6 +106,11 @@ function Todos() {
   };
 
   const handleCheckChange = async (id, title, completed) => {
+    if (!todosComp) {//במצב בו עוד לא מוצגות המשימות שבוצעו
+      await setTodos((prevTodos) => {
+        return prevTodos.filter(todo => todo.id !== id);
+      });
+    }
     try {
       const todo = {
         userId: usern.id,
@@ -165,10 +125,8 @@ function Todos() {
         },
         body: JSON.stringify(todo)
       });
-      console.log(response);
       if (response.ok) {
         const updatedTodo = await response.json();
-
         await setTodos(prevTodos => {
           return prevTodos.map(todo => {
             if (todo.id === updatedTodo.id) {
@@ -177,12 +135,10 @@ function Todos() {
             return todo;
           });
         });
-
-      } else {
-        throw new Error('Error: ' + response.status);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error updating data:", error);
+      navigate("/error");
     }
   }
 
@@ -193,7 +149,6 @@ function Todos() {
 
   const addTodo = async () => {
     if (newTodo.trim() !== '') {
-
       try {
         const todo = {
           userId: usern.id,
@@ -213,35 +168,27 @@ function Todos() {
           const updatedTodo = await response.json();
           await setTodos(prevTodos => [...prevTodos, updatedTodo]);
           setnewTodo('');
-        } else {
-          throw new Error('Error: ' + response.status);
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error updating data:", error);
+        navigate("/error");
       }
     }
   };
-  const showCompleted=async()=>{
-    if(!todosComp){
-      console.log("merge");
-    merge(1);
-  }
-    else{
-      console.log("concat");
-      const mergedTodos = Todos.concat(todosComp);
-      mergedTodos.sort((a, b) => a.id - b.id);
-      console.log(mergedTodos);
-      localStorage.setItem("compTodos", JSON.stringify(mergedTodos));
 
-      await setTodos (mergedTodos);
+  //מוסיף את המשימות שבוצעו
+  const showCompleted = async () => {
+    if (!todosComp) {
+      const temp = getComp(1);
+      temp.then(data => {
+        const mergedTodos = Todos.concat(data);
+        mergedTodos.sort((a, b) => a.id - b.id);
+        localStorage.setItem("compTodos", JSON.stringify(mergedTodos));
+        setTodos(mergedTodos)
+      });
     }
-    setFlag(false);
   };
 
-  const hideCompleted=async()=>{
-      // getComp(0);
-      // setFlag(true);
-  };
   return (
     <section className={styles["todos-select"]}>
       <div className={styles["lists"]}>
@@ -273,26 +220,26 @@ function Todos() {
                     todo.title
                   )}
                 </span>
-                <button onClick={() => handleDelete(todo.id)}>
-                  <FaTrash />
-                </button>
-                <button onClick={() => handleEdit(todo.id, todo.title)}>
-                  <FaEdit />
-                </button>
-                <button onClick={() => handleSave(todo.id, todo.title, todo.completed)}>
-                  <FaSave />
-                </button>
+                <div className="buttons">
+                  <button onClick={() => handleDelete(todo.id)}>
+                    <FaTrash />
+                  </button>
+                  <button onClick={() => handleEdit(todo.id, todo.title)}>
+                    <FaEdit />
+                  </button>
+                  <button onClick={() => handleSave(todo.id, todo.title, todo.completed)}>
+                    <FaSave />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
-          {flag?(
-          <button onClick={()=>showCompleted()}>
-            SHOW COMPLETED
-          </button>
-          ):(
-            <button onClick={()=>hideCompleted()}>
-            hide COMPLETED
-          </button>
+          {!todosComp ? (
+            <button onClick={() => showCompleted()}>
+              SHOW COMPLETED
+            </button>
+          ) : (
+            <h2>this is all users todo</h2>
           )}
         </div>
       </div>

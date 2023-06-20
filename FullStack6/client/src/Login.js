@@ -3,7 +3,7 @@ import { useState } from "react";
 import styles from "./Login.module.css";
 import { Link } from "react-router-dom";
 
-function Login({setUsername}) {
+function Login({ setUsername }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 

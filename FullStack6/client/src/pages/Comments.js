@@ -10,6 +10,10 @@ function Comments({ comments, postId, setComments, dataHandlers }) {
     let name = document.getElementById("commentName").value;
     let email = document.getElementById("commentEmail").value;
     let body = document.getElementById("commentBody").value;
+    if (!name || !email || !body) {
+      alert("One or more fields are missing!");
+      return;
+    }
 
     const url = "http://localhost:3000/comments";
     const comment = {
@@ -27,6 +31,11 @@ function Comments({ comments, postId, setComments, dataHandlers }) {
     let name = document.getElementById("updatedCName").value;
     let email = document.getElementById("updatedCEmail").value;
     let body = document.getElementById("updatedCBody").value;
+
+    if (!name || !email || !body) {
+      alert("One or more fields are missing!");
+      return;
+    }
 
     const url = `http://localhost:3000/comments/${commentId}`;
     const comment = {
@@ -57,7 +66,7 @@ function Comments({ comments, postId, setComments, dataHandlers }) {
               <button onClick={() => editComment(comment.id)}>Save</button>
             </section>
           ) : (
-            <section>
+            <section className={styles["single-comment"]}>
               <h5>{`${comment.id}. ${comment.name}`}</h5>
               <h6>{comment.email}</h6>
               <p>{comment.body}</p>

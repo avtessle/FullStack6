@@ -96,6 +96,7 @@ app.get("/todos/:id/:completed", (req, res) => {
       res.status(500).send("An error occurred");
     });
 });
+
 app.get("/todos/:id", (req, res) => {
   const todoId = req.params.id;
   if (!todoId) {
@@ -160,13 +161,10 @@ app.put("/todos/update-completed/:id", (req, res) => {
 
 app.delete("/todos/delete/:id", (req, res) => {
   const todoId = req.params.id;
-  console.log(todoId);
-  const query = `DELETE FROM todos WHERE id = '${todoId}'`;
+  const query = `DELETE FROM todos WHERE id = ${todoId}`;
   sqlConnect(query)
     .then((results) => {
-      console.log("delete successful");
-      console.log(results);
-      res.status(200);
+      res.status(200).json({ message: "todo deleted successfully" });
     })
     .catch((error) => {
       console.error("Error delete todos:", error);
@@ -263,6 +261,7 @@ app.delete("/posts/:id", function (req, res) {
       console.error(err);
       res.status(500).send("An error occurred");
     });
+    
 });
 
 //comments
